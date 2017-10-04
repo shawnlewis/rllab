@@ -14,6 +14,8 @@ import json
 import cPickle as pickle
 import base64
 
+import wandb
+
 _prefixes = []
 _prefix_str = ''
 
@@ -183,6 +185,7 @@ def dump_tabular(*args, **kwargs):
             for line in tabulate(_tabular).split('\n'):
                 log(line, *args, **kwargs)
         tabular_dict = dict(_tabular)
+        wandb.run.history.add(tabular_dict)
         # Also write to the csv files
         # This assumes that the keys in each iteration won't change!
         for tabular_fd in _tabular_fds.values():

@@ -2,7 +2,10 @@ from __future__ import print_function
 
 import sys
 
+import osim_env
+
 sys.path.append(".")
+
 
 from rllab.misc.ext import is_iterable, set_seed
 from rllab.misc.instrument import concretize

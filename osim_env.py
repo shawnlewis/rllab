@@ -1,9 +1,10 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import gym
-import gym.envs
-import gym.spaces
+
+import osim
+from osim.env import RunEnv
+
 import os
 import os.path as osp
 from rllab.envs.base import Env, Step
@@ -12,13 +13,12 @@ from rllab.spaces.box import Box
 from rllab.spaces.discrete import Discrete
 from rllab.misc import logger
 
-from osim.env import RunEnv
 
 
 def convert_gym_space(space):
-    if isinstance(space, gym.spaces.Box):
+    if isinstance(space, osim.env.gym.spaces.Box):
         return Box(low=space.low, high=space.high)
-    elif isinstance(space, gym.spaces.Discrete):
+    elif isinstance(space, osim.env.gym.spaces.Discrete):
         return Discrete(n=space.n)
     else:
         raise NotImplementedError

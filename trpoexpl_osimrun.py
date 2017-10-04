@@ -1,4 +1,7 @@
 import os
+
+from osim_env import OsimEnv
+
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 os.environ["THEANO_FLAGS"] = "device=cpu"
 
@@ -7,8 +10,6 @@ from rllab.envs.normalized_env import normalize
 
 from sandbox.vime.algos.trpo_expl import TRPO
 from rllab.misc.instrument import stub, run_experiment_lite
-
-from osim_env import OsimEnv
 
 stub(globals())
 

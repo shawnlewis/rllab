@@ -24,7 +24,7 @@ baseline = LinearFeatureBaseline(
     env.spec,
 )
 
-batch_size = 1000
+batch_size = 50000
 algo = TRPO(
     env=env,
     policy=policy,
@@ -54,7 +54,7 @@ algo = TRPO(
 run_experiment_lite(
     algo.train(),
     exp_prefix="trpo-expl",
-    n_parallel=1,
+    n_parallel=32,
     snapshot_mode="all",
     seed=1,
     mode="local",

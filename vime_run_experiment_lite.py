@@ -66,6 +66,7 @@ def run_experiment(argv):
                         help='Pickled data for stub objects')
 
     args = parser.parse_args(argv[1:])
+    wandb.run.config.update(args)
 
     from sandbox.vime.sampler import parallel_sampler_expl as parallel_sampler
     parallel_sampler.initialize(n_parallel=args.n_parallel)
@@ -102,6 +103,19 @@ def run_experiment(argv):
     else:
         # read from stdin
         data = pickle.loads(base64.b64decode(args.args_data))
+
+        # HACK: reach into the passed in algo and save some of the parameters
+        # Ideally we'd be able to do this from the launch script instead of here
+        # and also automatically pick up nested stuff instead of having to pop
+        # them out.
+        import copy
+        algo_kwargs = copy.deepcopy(data.obj.kwargs)
+        algo_kwargs.pop('baseline')
+        algo_kwargs.pop('env')
+        policy = algo_kwargs.pop('policy')
+        for k, v in algo_kwargs.items():
+            wandb.run.config['algo_%s' % k] = v
+        wandb.run.config['policy_hidden_sizes'] = policy.kwargs['hidden_sizes']
 
         maybe_iter = concretize(data)
         if is_iterable(maybe_iter):

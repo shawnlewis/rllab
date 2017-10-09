@@ -22,10 +22,10 @@ import base64
 import joblib
 
 import wandb
-wandb.init()
 
 
 def run_experiment(argv):
+    wandb.init()
 
     #default_log_dir = config.LOG_DIR
     default_log_dir = wandb.run.dir

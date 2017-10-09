@@ -27,8 +27,7 @@ import wandb
 def run_experiment(argv):
     wandb.init()
 
-    #default_log_dir = config.LOG_DIR
-    default_log_dir = wandb.run.dir
+    default_log_dir = config.LOG_DIR
     now = datetime.datetime.now(dateutil.tz.tzlocal())
 
     # avoid name clashes when running distributed jobs
@@ -66,6 +65,9 @@ def run_experiment(argv):
                         help='Pickled data for stub objects')
 
     args = parser.parse_args(argv[1:])
+
+    # override log directory
+    args.log_dir = wandb.run.dir
     wandb.run.config.update(args)
 
     from sandbox.vime.sampler import parallel_sampler_expl as parallel_sampler

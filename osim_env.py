@@ -53,7 +53,8 @@ class OsimEnv(Env, Serializable):
         return self._horizon
 
     def reset(self):
-        return self.env.reset()
+        # Hardcode difficult parameter for Osim's RunEnv
+        return self.env.reset(difficulty=0)
 
     def step(self, action):
         next_obs, reward, done, info = self.env.step(action)

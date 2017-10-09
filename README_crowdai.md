@@ -2,6 +2,8 @@ installation
 ------------
 Use the py2 branch of rllab
 
+Anaconda Linux version: https://repo.continuum.io/archive/Anaconda2-4.4.0-Linux-x86_64.sh
+
 ```shell
 git submodule init
 git submodule update

@@ -23,6 +23,19 @@ def convert_gym_space(space):
     else:
         raise NotImplementedError
 
+MAX_PENALTY = 0.015
+EXPONENT = 1.5
+def extra_reward(env):
+    # Penalize for pelvis height getting close to 0.65.
+
+    pelvis_y = env.current_state[env.STATE_PELVIS_Y]
+    if pelvis_y > 1:
+        return 0
+    # Quadratically go from MAX_PENALTY at pelvis_y=0.65 (simulation ends) to
+    # 0 at pelvis_y=1.0 which is the max
+    # Setting EXPONENT to 1 makes this linear
+    penalty = MAX_PENALTY * (-(pelvis_y - 1)/.35) ** EXPONENT
+    return -penalty
 
 class OsimEnv(Env, Serializable):
     def __init__(self, env_name, visualize=False):
@@ -58,6 +71,8 @@ class OsimEnv(Env, Serializable):
 
     def step(self, action):
         next_obs, reward, done, info = self.env.step(action)
+        _extra_reward = extra_reward(self.env)
+        reward += _extra_reward
         return Step(next_obs, reward, done, **info)
 
     def render(self):

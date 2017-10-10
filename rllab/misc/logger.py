@@ -177,7 +177,9 @@ class TerminalTablePrinter(object):
 table_printer = TerminalTablePrinter()
 
 
+_best_average_return = -10
 def dump_tabular(*args, **kwargs):
+    global _best_average_return
     if len(_tabular) > 0:
         if _log_tabular_only:
             table_printer.print_tabular(_tabular)
@@ -186,6 +188,11 @@ def dump_tabular(*args, **kwargs):
                 log(line, *args, **kwargs)
         tabular_dict = dict(_tabular)
         wandb.run.history.add(tabular_dict)
+        average_return = float(tabular_dict['AverageReturn'])
+        if average_return > _best_average_return:
+            wandb.run.summary['MaxReturn'] = float(tabular_dict['MaxReturn'])
+            wandb.run.summary['AverageReturn'] = float(tabular_dict['AverageReturn'])
+            _best_average_return = average_return
         # Also write to the csv files
         # This assumes that the keys in each iteration won't change!
         for tabular_fd in _tabular_fds.values():

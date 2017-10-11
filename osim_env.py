@@ -13,6 +13,8 @@ from rllab.spaces.box import Box
 from rllab.spaces.discrete import Discrete
 from rllab.misc import logger
 
+import numpy as np
+
 
 
 def convert_gym_space(space):
@@ -22,6 +24,8 @@ def convert_gym_space(space):
         return Discrete(n=space.n)
     else:
         raise NotImplementedError
+
+MARKOVIFY = True
 
 MAX_PENALTY = 0.015
 EXPONENT = 1.5
@@ -37,6 +41,7 @@ def extra_reward(env):
     penalty = MAX_PENALTY * (-(pelvis_y - 1)/.35) ** EXPONENT
     return -penalty
 
+
 class OsimEnv(Env, Serializable):
     def __init__(self, env_name, visualize=False):
         Serializable.quick_init(self, locals())
@@ -49,7 +54,12 @@ class OsimEnv(Env, Serializable):
         self.env = env
         self.env_id = env.spec.id
 
-        self._observation_space = convert_gym_space(env.observation_space)
+        if not MARKOVIFY:
+            self._observation_space = convert_gym_space(env.observation_space)
+        else:
+            self._observation_space = Box(
+                    low=np.repeat(-3.14159265, 41 + 14),
+                    high=np.repeat(3.14159265, 41 + 14))
         self._action_space = convert_gym_space(env.action_space)
         self._horizon = env.spec.timestep_limit
 
@@ -67,12 +77,18 @@ class OsimEnv(Env, Serializable):
 
     def reset(self):
         # Hardcode difficult parameter for Osim's RunEnv
-        return self.env.reset(difficulty=0)
+        obs = self.env.reset(difficulty=0)
+        if MARKOVIFY:
+            obs = np.concatenate((obs, np.repeat(0, 14)))
+        return obs
 
     def step(self, action):
         next_obs, reward, done, info = self.env.step(action)
         _extra_reward = extra_reward(self.env)
         reward += _extra_reward
+        if MARKOVIFY:
+            # add velocities for object positions
+            next_obs = np.concatenate((next_obs, np.array(self.env.current_state[-19:-5]) - np.array(self.env.last_state[-19:-5])))
         return Step(next_obs, reward, done, **info)
 
     def render(self):

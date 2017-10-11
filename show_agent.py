@@ -1,4 +1,5 @@
 import joblib
+import numpy as np
 import sys
 
 from rllab.envs.normalized_env import normalize
@@ -12,6 +13,7 @@ def main(argv):
     restored = joblib.load(argv[1])
     print('Running rollout')
     path = rollout(env, restored['policy'], 500)
+    print('Total Reward: %s' % np.sum(path['rewards']))
 
 if __name__ == '__main__':
     main(sys.argv)

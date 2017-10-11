@@ -27,8 +27,12 @@ def convert_gym_space(space):
 
 MARKOVIFY = True
 
+VEL_PENALTY_MULT = 4
+
+FALL_SMOOTHING = False
 MAX_PENALTY = 0.015
 EXPONENT = 1.5
+
 def extra_reward(env):
     # Penalize for pelvis height getting close to 0.65.
 
@@ -84,11 +88,23 @@ class OsimEnv(Env, Serializable):
 
     def step(self, action):
         next_obs, reward, done, info = self.env.step(action)
-        _extra_reward = extra_reward(self.env)
-        reward += _extra_reward
+        if FALL_SMOOTHING:
+            _extra_reward = extra_reward(self.env)
+            reward += _extra_reward
         if MARKOVIFY:
             # add velocities for object positions
-            next_obs = np.concatenate((next_obs, np.array(self.env.current_state[-19:-5]) - np.array(self.env.last_state[-19:-5])))
+            velocities = np.array(self.env.current_state[-19:-5]) - np.array(self.env.last_state[-19:-5])
+            vel_squared_sum = np.sum(np.square(velocities))
+            reward -= VEL_PENALTY_MULT * vel_squared_sum
+            #print ('Velocities: %s' % velocities)
+            next_obs = np.concatenate((next_obs, velocities))
+        #try:
+        #    input('Press Enter')
+        #except SyntaxError:
+        #    pass
+        #print('NEXT_OBS: %s' % next_obs)
+        #import pdb; pdb.set_trace()
+        print('Reward: %s' % reward)
         return Step(next_obs, reward, done, **info)
 
     def render(self):

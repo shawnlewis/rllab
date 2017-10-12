@@ -67,7 +67,7 @@ def run_experiment(argv):
     args = parser.parse_args(argv[1:])
 
     # override log directory
-    args.log_dir = wandb.run.dir
+    #args.log_dir = wandb.run.dir
     wandb.run.config.update(args)
 
     from sandbox.vime.sampler import parallel_sampler_expl as parallel_sampler

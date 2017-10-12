@@ -11,8 +11,7 @@ from rllab.envs.base import Env, Step
 from rllab.core.serializable import Serializable
 from rllab.spaces.box import Box
 from rllab.spaces.discrete import Discrete
-from rllab.misc import logger
-
+from rllab.misc import logger 
 import numpy as np
 
 
@@ -82,7 +81,7 @@ class OsimEnv(Env, Serializable):
 
     def reset(self):
         # Hardcode difficult parameter for Osim's RunEnv
-        obs = self.env.reset(difficulty=0)
+        obs = self.env.reset(difficulty=2)
         if MARKOVIFY:
             obs = np.concatenate((obs, np.repeat(0, 14)))
         return obs
@@ -92,12 +91,13 @@ class OsimEnv(Env, Serializable):
         if FALL_SMOOTHING:
             _extra_reward = extra_reward(self.env)
             reward += _extra_reward
+
+        velocities = np.array(self.env.current_state[-19:-5]) - np.array(self.env.last_state[-19:-5])
+        vel_squared_sum = np.sum(np.square(velocities))
+        reward -= VEL_PENALTY_MULT * vel_squared_sum
+        #print ('Velocities: %s' % velocities)
         if MARKOVIFY:
             # add velocities for object positions
-            velocities = np.array(self.env.current_state[-19:-5]) - np.array(self.env.last_state[-19:-5])
-            vel_squared_sum = np.sum(np.square(velocities))
-            reward -= VEL_PENALTY_MULT * vel_squared_sum
-            #print ('Velocities: %s' % velocities)
             next_obs = np.concatenate((next_obs, velocities))
         #try:
         #    input('Press Enter')

@@ -25,7 +25,8 @@ def convert_gym_space(space):
     else:
         raise NotImplementedError
 
-MARKOVIFY = True
+MARKOVIFY = False
+
 
 VEL_PENALTY_MULT = 4
 
@@ -104,7 +105,7 @@ class OsimEnv(Env, Serializable):
         #    pass
         #print('NEXT_OBS: %s' % next_obs)
         #import pdb; pdb.set_trace()
-        print('Reward: %s' % reward)
+        #print('Reward: %s' % reward)
         return Step(next_obs, reward, done, **info)
 
     def render(self):
